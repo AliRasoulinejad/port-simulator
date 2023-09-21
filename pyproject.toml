@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "port-simulator"
+version = "0.1.0"
+description = ""
+authors = ["ali.rasoulinejad <ali.rasoulinejad75@gmail.com>"]
+readme = "README.md"
+packages = [{include = "port_simulator"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+simpy = "^4.0.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
