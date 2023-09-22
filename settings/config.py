@@ -5,6 +5,7 @@ from dataclasses import dataclass
 @dataclass
 class Basic:
     duration: int
+    distribution_average_hours: int
 
 
 @dataclass
@@ -48,7 +49,10 @@ def load_settings():
     config = ConfigParser()
     config.read('configs.ini')
 
-    basic = Basic(duration=int(config["basic"]["duration"]))
+    basic = Basic(
+        duration=int(config["basic"]["duration"]),
+        distribution_average_hours=int(config["basic"]["distribution_average_hours"]),
+    )
     logging = Logging(level=config["logging"]["level"])
     port = Port(
         slots_count=int(config["port"]["slots"]),

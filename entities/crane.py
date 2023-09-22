@@ -21,9 +21,14 @@ class Crane(object):
         return self.name
 
     def __lt__(self, other):
+        """To manage cranes in FIFO queue, we should arrange all of them by their availability time."""
         return self.available_from < other.available_from
 
     def available(self, *, time: float):
+        """
+        :param time: The time that the crane is available
+        :return:
+        """
         self.available_from = time
 
     def discharge(self, *, vessel_code: str, container_id: int) -> simpy.Timeout:
