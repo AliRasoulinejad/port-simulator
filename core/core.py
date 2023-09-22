@@ -29,8 +29,7 @@ def handle_vessels(*, env, port: Port, vessels_queue: simpy.PriorityStore):
 def discharge(*, env: simpy.Environment, port: Port, vessel: Vessel):
     crane = yield port.cranes.get()
     for c_id in range(vessel.capacity):
-        logger.info(f"container #{c_id} discharged from vessel #{vessel.code} by {crane.name} at {env.now}")
-        yield port.discharge(crane=crane)
+        yield crane.discharge(vessel_code=vessel.code, container_id=c_id)
         truck = yield port.trucks.get()
         logger.info(f"container #{c_id} loaded to {truck.name} at {env.now}")
         env.process(move_container(env=env, port=port, truck=truck))
