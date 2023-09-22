@@ -23,10 +23,13 @@ class Crane(object):
     def __lt__(self, other):
         return self.available_from < other.available_from
 
+    def available(self, *, time: float):
+        self.available_from = time
+
     def discharge(self, *, vessel_code: str, container_id: int) -> simpy.Timeout:
         """
         :param vessel_code: The code on vessel thar is discharging
         :param container_id: The number of container which the crane is moving
         """
-        logger.info(f"container #{container_id} discharged from vessel #{vessel_code} by {self.name} at {self.env.now}")
+        logger.info(f"container #{container_id} discharged from #{vessel_code} by {self.name} at {self.env.now}")
         return self.env.timeout(self.operation_time)

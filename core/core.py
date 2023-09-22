@@ -23,25 +23,23 @@ def handle_vessels(*, env, port: Port, vessels_queue: simpy.PriorityStore):
         berth = yield port.slots.get()
         vessel = yield vessels_queue.get()
         vessel.berth(time=env.now, berth_name=berth)
-        env.process(discharge(env=env, port=port, vessel=vessel))
+        env.process(discharge_container(env=env, port=port, vessel=vessel))
 
 
-def discharge(*, env: simpy.Environment, port: Port, vessel: Vessel):
+def discharge_container(*, env: simpy.Environment, port: Port, vessel: Vessel):
     crane = yield port.cranes.get()
     for c_id in range(vessel.capacity):
         yield crane.discharge(vessel_code=vessel.code, container_id=c_id)
         truck = yield port.trucks.get()
-        logger.info(f"container #{c_id} loaded to {truck.name} at {env.now}")
+        truck.load(time=env.now, vessel_code=vessel.code, container_id=c_id)
         env.process(move_container(env=env, port=port, truck=truck))
 
-    crane.available_from = env.now
+    crane.available(time=env.now)
     port.cranes.put(crane)
     vessel.departure(time=env.now)
 
 
 def move_container(*, env: simpy.Environment, port: Port, truck: Truck):
-    yield env.process(port.move_container_to_yard_block(truck=truck))
-    logger.info(f"{truck.name} returned back to the port at {env.now}")
-
-    truck.available_from = env.now
+    yield env.process(truck.move_container_to_yard_block())
+    truck.available(time=env.now)
     port.trucks.put(truck)

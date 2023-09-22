@@ -1,5 +1,3 @@
-import typing
-
 import simpy
 
 from entities.crane import Crane
@@ -16,7 +14,7 @@ class Port(object):
         """
         self.env = env
         self.slots = simpy.PriorityStore(env=env, capacity=slots_count)
-        self.slots.items = [f"berth_{i+1}" for i in range(cranes_count)]
+        self.slots.items = [f"berth_{i + 1}" for i in range(cranes_count)]
         # Crane resources
         self.cranes = simpy.PriorityStore(env=env, capacity=cranes_count)
         self.cranes.items = [
@@ -25,8 +23,5 @@ class Port(object):
         # Truck resources
         self.trucks = simpy.PriorityStore(env=env, capacity=trucks_count)
         self.trucks.items = [
-            Truck(number=i + 1, operation_time=Setting.truck.operation_time) for i in range(trucks_count)
+            Truck(env=env, number=i, operation_time=Setting.truck.operation_time) for i in range(trucks_count)
         ]
-
-    def move_container_to_yard_block(self, truck: Truck) -> typing.Generator:
-        yield self.env.timeout(truck.operation_time)

@@ -2,7 +2,7 @@ import logging
 
 
 def setup_logger(name):
-    formatter = logging.Formatter(fmt='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s')
+    formatter = logging.Formatter(fmt='%(module)s - %(funcName)s - %(message)s')
 
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
