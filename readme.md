@@ -3,7 +3,7 @@
 - [Description](#Description)
 - [Installation](#Installation)
 - [Using](#Using)
-  - [Manual](#Manual Execution)
+  - [Manual](#Manual-Execution)
   - [Docker](#Docker)
 
 ## Description
@@ -28,9 +28,11 @@ Then you can run  the simulator in two ways:
 1. Manual Execution
 2. Docker
 
-### Manual Execution
+### Manual-Execution
 You can run the project locally using the following "make" command:
-`make run`
+```shell
+make run
+```
 
 ### Docker
 You can run the simulator in a Docker container using these commands:
