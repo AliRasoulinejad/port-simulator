@@ -8,7 +8,7 @@ build-image:
 	sudo docker build . -t port-simulator:latest
 
 run-image:
-	sudo docker run --name port-simulator -v ${pwd}/configs.ini:/app/configs.ini port-simulator:latest
+	sudo docker run --name port-simulator -v ./configs.ini:/app/configs.ini port-simulator:latest
 
 run-docker: build-image run-image
 
