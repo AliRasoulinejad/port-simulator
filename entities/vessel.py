@@ -28,10 +28,10 @@ class Vessel(object):
         self.arrival_time = time
         logger.info(f"#{self.code} arrived at {time}")
 
-    def berth(self, *, time: float, berth_name: str):
+    def berth(self, *, time: float, berth: str):
         self.berthed_time = time
-        logger.info(f"#{self.code} berthed in {berth_name} at {time}")
+        logger.info(f"#{self.code} berthed in {berth} at {time}")
 
-    def departure(self, *, time: float):
+    def departure(self, *, time: float, berth: str):
         self.departure_time = time
-        logger.info(f"#{self.code} arrived at {self.arrival_time}")
+        logger.info(f"#{self.code} departed the {berth} at {time}")

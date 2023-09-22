@@ -22,11 +22,11 @@ def handle_vessels(*, env, port: Port, vessels_queue: simpy.PriorityStore):
     while True:
         berth = yield port.slots.get()
         vessel = yield vessels_queue.get()
-        vessel.berth(time=env.now, berth_name=berth)
-        env.process(discharge_container(env=env, port=port, vessel=vessel))
+        vessel.berth(time=env.now, berth=berth)
+        env.process(discharge_container(env=env, port=port, berth=berth, vessel=vessel))
 
 
-def discharge_container(*, env: simpy.Environment, port: Port, vessel: Vessel):
+def discharge_container(*, env: simpy.Environment, port: Port, berth: str, vessel: Vessel):
     crane = yield port.cranes.get()
     for c_id in range(vessel.capacity):
         yield crane.discharge(vessel_code=vessel.code, container_id=c_id)
@@ -36,7 +36,8 @@ def discharge_container(*, env: simpy.Environment, port: Port, vessel: Vessel):
 
     crane.available(time=env.now)
     port.cranes.put(crane)
-    vessel.departure(time=env.now)
+    port.slots.put(berth)
+    vessel.departure(time=env.now, berth=berth)
 
 
 def move_container(*, env: simpy.Environment, port: Port, truck: Truck):
