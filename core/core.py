@@ -14,31 +14,30 @@ def vessel_generator(*, env, vessels_queue: simpy.PriorityStore):
     while True:
         yield env.timeout(random.expovariate(1 / 5))  # Exponential distribution for vessel arrivals
         vessel = Vessel()
-        vessel.arrival_time = env.now
+        vessel.arrive(time=env.now)
         vessels_queue.put(vessel)  # Store the vessel that arrives in the queue
-        logger.info(f"vessel {vessel.code} arrived at {vessel.arrival_time}")
 
 
 def handle_vessels(*, env, port: Port, vessels_queue: simpy.PriorityStore):
     while True:
         berth = yield port.slots.get()
         vessel = yield vessels_queue.get()
-        logger.info(f"vessel {vessel.code} berthed in {berth} at {env.now}")
-
+        vessel.berth(time=env.now, berth_name=berth)
         env.process(discharge(env=env, port=port, vessel=vessel))
 
 
 def discharge(*, env: simpy.Environment, port: Port, vessel: Vessel):
     crane = yield port.cranes.get()
     for c_id in range(vessel.capacity):
-        logger.info(f"container NO #{c_id} discharged from vessel #{vessel.code} by {crane.name} at {env.now}")
+        logger.info(f"container #{c_id} discharged from vessel #{vessel.code} by {crane.name} at {env.now}")
         yield port.discharge(crane=crane)
         truck = yield port.trucks.get()
-        logger.info(f"container NO #{c_id} loaded to {truck.name} at {env.now}")
+        logger.info(f"container #{c_id} loaded to {truck.name} at {env.now}")
         env.process(move_container(env=env, port=port, truck=truck))
 
     crane.available_from = env.now
     port.cranes.put(crane)
+    vessel.departure(time=env.now)
 
 
 def move_container(*, env: simpy.Environment, port: Port, truck: Truck):
