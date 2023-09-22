@@ -4,28 +4,62 @@ from dataclasses import dataclass
 
 @dataclass
 class Basic:
-    Time: int
+    duration: int
 
 
 @dataclass
 class Logging:
-    Level: str
+    level: str
+
+
+@dataclass
+class Port:
+    slots_count: int
+    cranes_count: int
+    trucks_count: int
+
+
+@dataclass
+class Vessel:
+    default_capacity: int
+
+
+@dataclass
+class Crane:
+    operation_time: int
+
+
+@dataclass
+class Truck:
+    operation_time: int
 
 
 @dataclass
 class Settings:
-    Basic: Basic
-    Logging: Logging
+    basic: Basic
+    logging: Logging
+    port: Port
+    vessel: Vessel
+    crane: Crane
+    truck: Truck
 
 
 def load_settings():
     config = ConfigParser()
     config.read('configs.ini')
 
-    basic = Basic(Time=int(config["basic"]["time"]))
-    logging = Logging(Level=config["logging"]["level"])
+    basic = Basic(duration=int(config["basic"]["duration"]))
+    logging = Logging(level=config["logging"]["level"])
+    port = Port(
+        slots_count=int(config["port"]["slots"]),
+        cranes_count=int(config["port"]["cranes"]),
+        trucks_count=int(config["port"]["trucks"])
+    )
+    vessel = Vessel(default_capacity=int(config["vessel"]["default_capacity"]))
+    crane = Crane(operation_time=int(config["crane"]["operation_time"]))
+    truck = Truck(operation_time=int(config["truck"]["operation_time"]))
 
-    return Settings(basic, logging)
+    return Settings(basic=basic, logging=logging, port=port, vessel=vessel, crane=crane, truck=truck)
 
 
 # TODO: Singleton
