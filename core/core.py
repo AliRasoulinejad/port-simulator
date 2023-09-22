@@ -14,36 +14,33 @@ def vessel_generator(*, env, vessels_queue: simpy.PriorityStore):
     while True:
         yield env.timeout(random.expovariate(1 / 5))  # Exponential distribution for vessel arrivals
         vessel = Vessel()
-        vessel.arrival_time = env.now
+        vessel.arrive(time=env.now)
         vessels_queue.put(vessel)  # Store the vessel that arrives in the queue
-        logger.info(f"vessel {vessel.code} arrived at {vessel.arrival_time}")
 
 
 def handle_vessels(*, env, port: Port, vessels_queue: simpy.PriorityStore):
     while True:
         berth = yield port.slots.get()
         vessel = yield vessels_queue.get()
-        logger.info(f"vessel {vessel.code} berthed in {berth} at {env.now}")
+        vessel.berth(time=env.now, berth=berth)
+        env.process(discharge_container(env=env, port=port, berth=berth, vessel=vessel))
 
-        env.process(discharge(env=env, port=port, vessel=vessel))
 
-
-def discharge(*, env: simpy.Environment, port: Port, vessel: Vessel):
+def discharge_container(*, env: simpy.Environment, port: Port, berth: str, vessel: Vessel):
     crane = yield port.cranes.get()
     for c_id in range(vessel.capacity):
-        logger.info(f"container NO #{c_id} discharged from vessel #{vessel.code} by {crane.name} at {env.now}")
-        yield port.discharge(crane=crane)
+        yield crane.discharge(vessel_code=vessel.code, container_id=c_id)
         truck = yield port.trucks.get()
-        logger.info(f"container NO #{c_id} loaded to {truck.name} at {env.now}")
+        truck.load(time=env.now, vessel_code=vessel.code, container_id=c_id)
         env.process(move_container(env=env, port=port, truck=truck))
 
-    crane.available_from = env.now
+    crane.available(time=env.now)
     port.cranes.put(crane)
+    port.slots.put(berth)
+    vessel.departure(time=env.now, berth=berth)
 
 
 def move_container(*, env: simpy.Environment, port: Port, truck: Truck):
-    yield env.process(port.move_container_to_yard_block(truck=truck))
-    logger.info(f"{truck.name} returned back to the port at {env.now}")
-
-    truck.available_from = env.now
+    yield env.process(truck.move_container_to_yard_block())
+    truck.available(time=env.now)
     port.trucks.put(truck)
